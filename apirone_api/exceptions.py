@@ -1,0 +1,2 @@
+class InvalidWallet(Exception):
+    pass

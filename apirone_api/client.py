@@ -2,6 +2,8 @@ import json
 import typing
 import aiohttp
 
+from . import exceptions
+
 
 class BaseApirone:
     URL = "https://apirone.com/api"
@@ -74,4 +76,15 @@ class ApironeSaving(ApironeV1, BaseApirone):
 
     async def _request(self, path, method="POST", **kwargs):
         url = "{}/{}/{}/{}".format(self.URL, "wallets", self.wallet_id, path)
-        return await self.make_request(url, method=method, **kwargs)
+        response =  await self.make_request(url, method=method, **kwargs)
+        return self.check_result(response)
+
+    @staticmethod
+    def check_result(json_data):
+        if "message" in json_data:
+            message = json_data["message"]
+
+            if "Invalid wallet." == message:
+                raise exceptions.InvalidWallet(message)
+
+        return json_data
