@@ -28,3 +28,13 @@ def test_create_address(loop):
 def test_balance(loop):
     response = loop.run_until_complete(apirone.balance())
     assert "available" in response
+
+
+def test_exception_invalid_wallet(loop):
+    response = False
+    try:
+        loop.run_until_complete(apirone_api.ApironeSaving("tyujytrew").balance())
+    except apirone_api.exceptions.InvalidWallet:
+        response = True
+
+    assert response
