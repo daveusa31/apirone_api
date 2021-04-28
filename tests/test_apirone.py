@@ -51,6 +51,11 @@ def test_gen_qr_code(loop, amount, label, message):
     assert "image/png" == loop.run_until_complete(_request("GET", url_to_qr_code)).content_type
 
 
+def test_network_fee(loop):
+    response = loop.run_until_complete(apirone.network_fee())
+    assert "strategy" in response[0]
+
+
 async def _request(*args, **kwargs):
     async with aiohttp.ClientSession() as session:
         response = await session.request(*args, **kwargs)

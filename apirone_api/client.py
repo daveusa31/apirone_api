@@ -53,6 +53,11 @@ class ApironeV1(BaseApirone):
         url = "https://chart.googleapis.com/chart?chs={}&cht=qr&chl={}".format(size, line)
         return url
 
+    @classmethod
+    async def network_fee(cls, currency):
+        url = "{}/{}/{}/{}".format(ApironeSaving.URL, "networks", currency, "fee")
+        return await cls.make_request(url, method="GET")
+
 
 class ApironeSaving(ApironeV1, BaseApirone):
     URL = "{}/v2".format(BaseApirone.URL)
@@ -60,6 +65,10 @@ class ApironeSaving(ApironeV1, BaseApirone):
     def __init__(self, wallet_id, transfer_key=None):
         self.wallet_id = wallet_id
         self.transfer_key = transfer_key
+
+    @property
+    def currency(self):
+        return self.wallet_id.split("-")[0]
 
     # noinspection SpellCheckingInspection
     async def create_address(self, addr_type="p2sh-p2wpkh", callback_url=None, **callback_data):
@@ -106,3 +115,9 @@ class ApironeSaving(ApironeV1, BaseApirone):
                 raise exceptions.InvalidWallet(message)
 
         return json_data
+
+    async def network_fee(self, currency=None):
+        if currency is None:
+            currency = self.currency
+
+        return await super().network_fee(currency)
