@@ -1,5 +1,4 @@
-import json
-import typing
+import urllib
 import aiohttp
 
 from . import exceptions
@@ -17,19 +16,19 @@ class BaseApirone:
 
         return response
 
-
-class ApironeV1(BaseApirone):
-    URL = "{}/v1".format(BaseApirone.URL)
-
-    async def ticker(self, currency):
-        return await self._request_v1("ticker", method="GET", params={"currency": currency})
-
     @staticmethod
     def convert_satoshis_to_bitcoins(sum_in_satoshis, number_of_digits=8):
         need_zero = number_of_digits - len(str(sum_in_satoshis))  # Сколько нулей ещё нужно
         _sum = "0.{}{}".format("0" * need_zero, sum_in_satoshis)
         _sum = round(float(_sum), number_of_digits)
         return _sum
+
+
+class ApironeV1(BaseApirone):
+    URL = "{}/v1".format(BaseApirone.URL)
+
+    async def ticker(self, currency):
+        return await self._request_v1("ticker", method="GET", params={"currency": currency})
 
     async def _request_v1(self, path, params=None, method="POST"):
         url = "{}/{}".format(self.URL, path)
@@ -76,7 +75,7 @@ class ApironeSaving(ApironeV1, BaseApirone):
 
     async def _request(self, path, method="POST", **kwargs):
         url = "{}/{}/{}/{}".format(self.URL, "wallets", self.wallet_id, path)
-        response =  await self.make_request(url, method=method, **kwargs)
+        response = await self.make_request(url, method=method, **kwargs)
         return self.check_result(response)
 
     @staticmethod
