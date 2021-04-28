@@ -34,6 +34,25 @@ class ApironeV1(BaseApirone):
         url = "{}/{}".format(self.URL, path)
         return await self.make_request(url, method=method, params=params)
 
+    @staticmethod
+    def gen_qr_code(currency, address, amount=None, label=None, message=None, size="200x200"):
+        line = "{}:{}".format(currency, address)
+        params = {}
+        if amount is not None:
+            params["amount"] = amount
+        if label is not None:
+            params["label"] = label
+        if message is not None:
+            params["message"] = message
+        if 0 < len(params):
+            params_in_str = "?{}".format(urllib.parse.urlencode(params))
+        else:
+            params_in_str = ""
+
+        line = "{}{}".format(line, params_in_str)
+        url = "https://chart.googleapis.com/chart?chs={}&cht=qr&chl={}".format(size, line)
+        return url
+
 
 class ApironeSaving(ApironeV1, BaseApirone):
     URL = "{}/v2".format(BaseApirone.URL)

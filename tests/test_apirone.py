@@ -1,5 +1,6 @@
 import pytest
 import asyncio
+import aiohttp
 import apirone_api
 
 
@@ -38,3 +39,20 @@ def test_exception_invalid_wallet(loop):
         response = True
 
     assert response
+
+
+@pytest.mark.parametrize("amount, label, message", [
+    (1, "label", "Hello apirone!"),
+    (None, None, None)
+])
+def test_gen_qr_code(loop, amount, label, message):
+    address = "3FADVJzjsmkMVVHPv7QGhSTEJWtmamJqNJ"
+    url_to_qr_code = apirone.gen_qr_code("bitcoin", address, amount=amount, label=label, message=message)
+    assert "image/png" == loop.run_until_complete(_request("GET", url_to_qr_code)).content_type
+
+
+async def _request(*args, **kwargs):
+    async with aiohttp.ClientSession() as session:
+        response = await session.request(*args, **kwargs)
+
+    return response
